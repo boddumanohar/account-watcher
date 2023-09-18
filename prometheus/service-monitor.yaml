@@ -1,0 +1,12 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+ name: my-app
+ labels:
+   env: staging
+spec:
+ selector:
+   matchLabels:
+     k8s-app: my-app
+ endpoints:
+ - port: api
