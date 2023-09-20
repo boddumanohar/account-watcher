@@ -1,0 +1,12 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: watcher-service
+  labels:
+    app: watcher-service
+spec:
+  selector:
+    app: watcher-service
+  ports:
+  - name: metrics
+    port: 3000

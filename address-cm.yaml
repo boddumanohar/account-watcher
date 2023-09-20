@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: addresses-config
+data:
+  addresses.txt: |
+    5EWNeodpcQ6iYibJ3jmWVe85nsok1EDG8Kk3aFg8ZzpfY1qX
+    5Dz4AFZE9EVo4obuDhoKDg9y9aCHsviNNWw3AizHHbnJ7wZW
+    5Hpk4yRCNMGw7N5BV6WJzcoPdWpyfgtEZZattZvA85K3WA76

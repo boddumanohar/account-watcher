@@ -1,10 +1,12 @@
 const { ApiPromise, WsProvider } = require('@polkadot/api');
 const express = require('express');
-const fs = require('fs').promises;
+const fs = require('fs');
 const client = require('prom-client');
 
 const app = express();
 const PORT = 3000;
+
+const ADDRESSES_PATH = process.env.ADDRESSES_PATH || '/etc/config/addresses.txt';
 
 const addressGauge = new client.Gauge({
   name: 'balance',
@@ -57,7 +59,8 @@ async function fetchBalance(addr) {
 }
 
 async function worker() {
-  const data = await fs.readFile('addresses.txt', 'utf8');
+  console.log('starting worker..')
+  const data = await fs.promises.readFile(ADDRESSES_PATH, 'utf8');
   const addresses = data.split('\n').filter(addr => addr.trim() !== "");
 
   for (let addr of addresses) {
@@ -67,5 +70,8 @@ async function worker() {
 
 app.listen(PORT, () => {
   console.log(`Exporter running on http://0.0.0.0:${PORT}/metrics`);
-  worker()
+  // waitForFileAndStartWorker()
+  if (fs.existsSync(ADDRESSES_PATH)) {
+    worker();
+  }
 });
