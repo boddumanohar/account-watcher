@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: watcher-service2
+  labels:
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: watcher-service
+  namespaceSelector:
+    matchNames:
+    - default
+  endpoints:
+  - port: "metrics"
+    path: /metrics
+    interval: 15s
+    # honorLabels: true
+    scheme: http
+    scrapeTimeout: 30s

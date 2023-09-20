@@ -15,11 +15,12 @@ const addressGauge = new client.Gauge({
 
 async function getBalance(account) {
     // todo: change this to kusama network at the end
-    const wsProvider = new WsProvider('wss://westend.api.onfinality.io/public-ws');
-    const api = await ApiPromise.create({ provider: wsProvider });
-    const { nonce, data: balance } = await api.query.system.account(account);
-    const balanceInDot = balance.free / 1e12;
-    return balanceInDot;
+    // const wsProvider = new WsProvider('wss://westend.api.onfinality.io/public-ws');
+    // const api = await ApiPromise.create({ provider: wsProvider });
+    // const { nonce, data: balance } = await api.query.system.account(account);
+    // const balanceInDot = balance.free / 1e12;
+    // return balanceInDot;
+    return 0;
 }
 
 app.get('/metrics', async (req, res) => {
@@ -47,5 +48,5 @@ app.get('/metrics', async (req, res) => {
 
 
 app.listen(PORT, () => {
-  console.log(`Exporter running on http://localhost:${PORT}/metrics`);
+  console.log(`Exporter running on http://0.0.0.0:${PORT}/metrics`);
 });

@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    prometheus.io/port: "metrics"
+    prometheus.io/scrape: "true"
+  name: watcher-service
+  labels:
+    app: watcher-service
+spec:
+  selector:
+    app: watcher-service
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+      name: "metrics"
+  type: ClusterIP
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: watcher-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: watcher-service
+  template:
+    metadata:
+      labels:
+        app: watcher-service
+    spec:
+      containers:
+      - name: watcher
+        image: bmanu199/watcher:v1
+        ports:
+        - containerPort: 3000

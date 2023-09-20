@@ -1,0 +1,14 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: zero-balance-alert-rule
+  labels:
+    release: prometheus
+spec:
+  groups:
+  - name: balance
+    rules:
+    - alert: Zerobalance
+      expr: balance == 0
+      labels:
+        severity: critical
