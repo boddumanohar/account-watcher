@@ -13,27 +13,23 @@ const addressGauge = new client.Gauge({
   labelNames: ['account']
 });
 
+const accountBalanceMap = new Map();
+
 async function getBalance(account) {
     // todo: change this to kusama network at the end
-    // const wsProvider = new WsProvider('wss://westend.api.onfinality.io/public-ws');
-    // const api = await ApiPromise.create({ provider: wsProvider });
-    // const { nonce, data: balance } = await api.query.system.account(account);
-    // const balanceInDot = balance.free / 1e12;
-    // return balanceInDot;
-    return 0;
+    const wsProvider = new WsProvider('wss://westend.api.onfinality.io/public-ws');
+    const api = await ApiPromise.create({ provider: wsProvider });
+    const { nonce, data: balance } = await api.query.system.account(account);
+    const balanceInDot = balance.free / 1e12;
+    return balanceInDot;
 }
 
 app.get('/metrics', async (req, res) => {
     try {
-      const data = await fs.readFile('addresses.txt', 'utf8');
-      const addresses = data.split('\n').filter(addr => addr.trim() !== "");
 
-      // Use Promise.all() and map() to await all the balance fetching operations
-      const balances = await Promise.all(addresses.map(addr => getBalance(addr)));
-
-      addresses.forEach((addr, index) => {
-        console.log(balances[index])
-        addressGauge.set({ account: addr }, balances[index]);
+      accountBalanceMap.forEach((balance, addr) => {
+        console.log(addr, balance)
+        addressGauge.set({ account: addr }, balance);
       });
 
       console.log(client.register.contentType);
@@ -46,7 +42,43 @@ app.get('/metrics', async (req, res) => {
     }
   });
 
+  async function fetchBalance(addr) {
+    const wsProvider = new WsProvider('wss://westend.api.onfinality.io/public-ws');
+    const api = await ApiPromise.create({ provider: wsProvider });
+
+    let { data: { free: previousFree }, nonce: previousNonce } = await api.query.system.account(addr);
+
+    console.log(`${addr} has a balance of ${previousFree}, nonce ${previousNonce}`);
+    console.log(`You may leave this example running and start example 06 or transfer any value to ${addr}`);
+    accountBalanceMap.set(addr, previousFree / 1e12)
+
+    // Here we subscribe to any balance changes and update the on-screen value
+    api.query.system.account(addr, ({ data: { free: currentFree }, nonce: currentNonce }) => {
+      // Calculate the delta
+      const change = currentFree.sub(previousFree);
+
+      if (!change.isZero()) {
+        console.log(`New balance change of ${change}, nonce ${currentNonce}`);
+
+        previousFree = currentFree;
+        previousNonce = currentNonce;
+        accountBalanceMap.set(addr, previousFree / 1e12)
+      }
+    });
+  }
+
+  async function worker() {
+    const data = await fs.readFile('addresses.txt', 'utf8');
+    const addresses = data.split('\n').filter(addr => addr.trim() !== "");
+
+    for (let addr of addresses) {
+      console.log(addr);
+      fetchBalance(addr)
+  }
+
+}
 
 app.listen(PORT, () => {
   console.log(`Exporter running on http://0.0.0.0:${PORT}/metrics`);
+  worker()
 });
