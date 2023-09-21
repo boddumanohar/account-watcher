@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: watcher
-        image: bmanu199/watcher:v1
+        image: bmanu199/watcher:v2
         ports:
         - containerPort: 3000
         env:
