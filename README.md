@@ -6,6 +6,13 @@ wallets are defined in addresses-config configmap
 
 ### usage
 
+the nodejs application has been already built and pushed to my docker hub repository.
+```
+docker build -t watcher .
+docker tag watcher:latest bmanu199/watcher:v2
+docker push bmanu199/watcher:v2
+```
+
 just run:
 ```
 start.sh
