@@ -5,13 +5,22 @@ metadata:
   labels:
     release: prometheus
 spec:
-  route:
-    groupBy: ['Alertname']
-    groupWait: 30s
-    groupInterval: 5m
-    repeatInterval: 12h
-    receiver: 'webhook'
-  receivers:
-  - name: 'webhook'
-    webhookConfigs:
-    - url: 'http://example.com/'
+    route:
+      groupBy: ['job', 'alertname']
+      groupWait: 30s
+      groupInterval: 1m
+      repeatInterval: 2m
+      receiver: 'email-receiver'
+      matchers:
+      - name: severity
+        value: critical
+      - name: alertname
+        value: Zerobalance
+
+    receivers:
+    - name: 'email-receiver'
+      emailConfigs:
+      - from: 'alerts@example.com'
+        smarthost: 'mailhog:1025'
+        to: 'user@example.com'
+        requireTLS: false
